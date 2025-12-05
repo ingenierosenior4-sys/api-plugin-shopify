@@ -14,7 +14,7 @@ const shippingRates = (req, res) => {
   if (hmacHeader) {
     const hash = crypto.createHmac('sha256', secret).update(rawBody, 'utf8').digest('base64');
     if (hash !== hmacHeader) {
-      return res.status(401).send('Unauthorized: HMAC validation failed');
+      return res.status(401).send('Unauthorized: HMAC validation failed Brayan');
     }
   }
 
