@@ -1,0 +1,44 @@
+const crypto = require('crypto');
+
+const shippingRates = (req, res) => {
+  // req.body será Buffer cuando usemos express.raw
+  console.log('Received raw body:', req.body);
+  const rawBuffer = req.body;
+  const rawBody = rawBuffer && Buffer.isBuffer(rawBuffer)
+    ? rawBuffer.toString('utf8')
+    : (typeof req.body === 'string' ? req.body : JSON.stringify(req.body || {}));
+
+  const hmacHeader = req.headers['x-shopify-hmac-sha256'];
+  const secret = process.env.SHOPIFY_API_SECRET || '';
+
+  if (hmacHeader) {
+    const hash = crypto.createHmac('sha256', secret).update(rawBody, 'utf8').digest('base64');
+    if (hash !== hmacHeader) {
+      return res.status(401).send('Unauthorized: HMAC validation failed');
+    }
+  }
+
+  // Aquí podrías parsear rawBody si necesitas usar los datos de entrada
+  // const body = JSON.parse(rawBody);
+
+  return res.json({
+    rates: [
+      {
+        service_name: "Express CG",
+        service_code: "EXP",
+        total_price: "1500",
+        currency: "USD",
+        description: "Entrega en 1-2 días"
+      },
+      {
+        service_name: "Económico CGl",
+        service_code: "ECO",
+        total_price: "800",
+        currency: "USD",
+        description: "Entrega en 5-7 días"
+      }
+    ]
+  });
+};
+
+module.exports = { shippingRates };

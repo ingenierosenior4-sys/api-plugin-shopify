@@ -1,6 +1,11 @@
 const express = require('express');
 const routes = require('./routes');
+const shopifyRouter = require('./routes/shopify');
 const app = express();
+
+// Para la ruta webhook de Shopify necesitamos el body crudo para validar HMAC.
+// Registramos express.raw únicamente para esa ruta específica antes del parser JSON global.
+app.use('/api/shopify/shipping-rates', express.raw({ type: 'application/json' }));
 
 app.use(express.json());
 
@@ -15,6 +20,9 @@ app.use((req, res, next) => {
   }
   next();
 });
+
+// Montamos el router de Shopify antes de las demás rutas de API (ya usa raw para la ruta específica)
+app.use('/api/shopify', shopifyRouter);
 
 app.use('/api', routes);
 
