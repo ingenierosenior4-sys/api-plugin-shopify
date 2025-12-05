@@ -11,13 +11,6 @@ const shippingRates = (req, res) => {
   const hmacHeader = req.headers['x-shopify-hmac-sha256'];
   const secret = process.env.SHOPIFY_API_SECRET || '';
 
-  if (hmacHeader) {
-    const hash = crypto.createHmac('sha256', secret).update(rawBody, 'utf8').digest('base64');
-    if (hash !== hmacHeader) {
-      return res.status(401).send('Unauthorized: HMAC validation failed Brayan');
-    }
-  }
-
   // Aquí podrías parsear rawBody si necesitas usar los datos de entrada
   // const body = JSON.parse(rawBody);
 
