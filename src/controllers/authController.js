@@ -12,8 +12,8 @@ const register = async (req, res) => {
 
 const login = async (req, res) => {
   try {
-    const { user, password } = req.body;
-    const token = await loginUser(user, password);
+    const { llave, aplicacion } = req.body;
+    const token = await loginUser(llave, aplicacion);
     res.json({ token });
   } catch (error) {
     res.status(401).json({ error: error.message });

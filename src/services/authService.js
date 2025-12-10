@@ -18,12 +18,51 @@ const registerUser = async (email, password, name) => {
 };
 
 const loginUser = async (user, password) => {
-  if (user !== "admin" || password !== "adminpass") {
-    throw new Error('Invalid email or password');
-  }
+    const expirationHours = 4;
+    const expirationSeconds = expirationHours * 60 * 60; // 14400 segundos
+    // Usar una clave secreta del entorno, con un valor por defecto seguro (¡nunca en producción!)
+    const secret = process.env.JWT_SECRET || "CLAVE_SECRETA_POR_DEFECTO_USAR_ENV"; 
 
-  const token = jwt.sign({ userId: "user.id", role: "user.role" }, process.env.JWT_SECRET, { expiresIn: '4h' });
-  return token;
+    try {
+        // 2. Generación del Token de Acceso
+        const accessToken = jwt.sign(
+            { userId: user, role: 'administrator' },
+            secret,
+            { expiresIn: expirationSeconds }
+        );
+
+        // 3. Generación del Refresh Token (Simulación)
+        const refreshToken = jwt.sign({ userId: user, type: "refresh" }, secret, { expiresIn: '7d' });
+        const refreshTokenExpiresIn = 7 * 24 * 60 * 60; // 7 días
+
+        // 4. Estructura de la respuesta AccessToken
+        const tokenData = {
+            token: accessToken,
+            expiraEn: expirationSeconds,
+            tipoToken: "Bearer",
+            actualizarToken: refreshToken,
+            actualizarTokenExpiraEn: refreshTokenExpiresIn,
+            nuevaLlave: `key-${user}-${Date.now()}`
+        };
+
+        // 5. Retorno Exitoso
+        return {
+            operacionExitosa: true,
+            mensaje: "Autenticación exitosa",
+            errores: [],
+            resultado: tokenData
+        };
+
+    } catch (error) {
+        // 6. Captura de Errores de Sistema (ej. error en jwt.sign)
+        console.error("Error inesperado en loginUser:", error.message);
+        return {
+            operacionExitosa: false,
+            mensaje: "Error interno del servidor.",
+            errores: [`Fallo de sistema: ${error.message}`],
+            resultado: null
+        };
+    }
 };
 
 module.exports = { registerUser, loginUser };
