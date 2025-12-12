@@ -34,4 +34,11 @@ const shippingRates = (req, res) => {
   });
 };
 
-module.exports = { shippingRates };
+const createOrder = (req, res) => {
+  // Lógica para crear una orden en Shopify
+  console.log("Oreder creation endpoint hit");
+  console.log('Creating order with data:', req.body);
+  res.status(201).json({ message: 'Order Created Successfully' });
+}
+
+module.exports = { shippingRates, createOrder };
